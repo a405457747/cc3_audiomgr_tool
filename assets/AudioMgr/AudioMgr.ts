@@ -7,7 +7,17 @@ export class AudioMgr extends Component {
 
    private static inst:AudioMgr|null=null;
 
+
+   @property([AudioClip])
+   musicClips:AudioClip[]=[];
+
+   @property([AudioClip])
+   effectClips:AudioClip[]=[];
+
+   effectClipCache={}
+
     static get Inst():AudioMgr{
+        /*
         if(AudioMgr.inst==null){
             let n = new Node("AudioMgr");
             let i=n.addComponent(AudioMgr);
@@ -16,23 +26,83 @@ export class AudioMgr extends Component {
 
             AudioMgr.inst=i;
         }
+        */
         return AudioMgr.inst;
     }
 
 
     protected onLoad(): void {
-       let audioSource= this.node.addComponent(AudioSource);
-       this.audioSource=audioSource;
+        AudioMgr.inst=this;
+
+       this.audioSource=this.node.getComponent(AudioSource);;
        this.audioSource.loop=true;
+
+      // this.playMusicSync("10-next-round");
+
     }
 
     test(){
+
+        /*
         console.log("i am audiomgr test");
         //this.playMusic("audio/10-next-round")
-
         this.playEffect("audio/bel");
         this.playEffect("audio/chel");
+        */
+
+        /*
+        this.playEffectSync("bel");
+        this.playEffectSync("bel");
+        this.playEffectSync("chel");
+        */
+
+        this.schedule(()=>{
+            this.playEffectSync("bel");
+        },1,5,1);
     }
+
+    playEffectSync(name:string){
+        let clip:AudioClip=null;
+        for(let item of this.effectClips){
+            if(item.name===name){
+                clip =item;
+                break;
+            }
+        }
+
+        if(name in this.effectClipCache){
+            this.effectClipCache[name].play();
+        }else {
+         let new_com =this.node.addComponent(AudioSource);
+            new_com.clip =clip;
+            new_com.play();
+            this.effectClipCache[name]=new_com;
+        }
+
+    }
+
+    playMusicSync(name:string){
+        let clip:AudioClip=null;
+        for(let item of this.musicClips){
+            if(item.name===name){
+                clip =item;
+                break;
+            }
+        }
+        this.audioSource.clip =clip;
+        this.audioSource.play();
+    }
+
+    pauseMusic(){
+        this.audioSource.pause();
+    }
+
+    
+    resumeMusic(){
+        this.audioSource.play();
+    }
+
+
 
     playMusic(filePath:string){
         resources.load(filePath, AudioClip, (err, asset:AudioClip) => {
