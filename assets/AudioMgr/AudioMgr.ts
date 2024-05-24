@@ -1,9 +1,10 @@
 import { _decorator, AudioSource, Component, Node ,resources,AudioClip,find} from 'cc';
-const { ccclass, property ,executionOrder} = _decorator;
+const { ccclass, property ,executionOrder,requireComponent} = _decorator;
 
 
 @ccclass('AudioMgr')
 @executionOrder(-1)
+@requireComponent(AudioSource)
 export class AudioMgr extends Component {
     audioSource: AudioSource|null=null;
 
@@ -34,12 +35,18 @@ export class AudioMgr extends Component {
 
 
     protected onLoad(): void {
-        AudioMgr.inst=this;
+        if(AudioMgr.inst==null){
+            AudioMgr.inst=this;
+       
+            this.audioSource=this.node.getComponent(AudioSource);;
 
-       this.audioSource=this.node.getComponent(AudioSource);;
-       this.audioSource.loop=true;
-        console.log("audioMgr onload");
+           this.audioSource.loop=true;
+           this.audioSource.playOnAwake=false;
+            console.log("audioMgr onload");
+        }
+
       // this.playMusicSync("10-next-round");
+     // this.test();
 
     }
 
@@ -71,11 +78,15 @@ export class AudioMgr extends Component {
                 break;
             }
         }
+        if(clip===null){
+            console.log("the audio clip load fail name is "+name);
+        }
 
         if(name in this.effectClipCache){
             this.effectClipCache[name].play();
         }else {
          let new_com =this.node.addComponent(AudioSource);
+            new_com.playOnAwake=false;
             new_com.clip =clip;
             new_com.play();
             this.effectClipCache[name]=new_com;
@@ -104,6 +115,11 @@ export class AudioMgr extends Component {
         this.audioSource.play();
     }
 
+    setMusicVolume(val:number):void{
+
+        this.audioSource.volume=val;
+    }
+
 
 
     playMusic(filePath:string){
@@ -127,6 +143,7 @@ export class AudioMgr extends Component {
             find("Canvas/AudioMgr")?.addChild(n);
 
             a.clip = asset;
+            a.playOnAwake=false;
             a.play();
 
             this.scheduleOnce(()=>{
@@ -138,5 +155,4 @@ export class AudioMgr extends Component {
 
 
 }
-
 
