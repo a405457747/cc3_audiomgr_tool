@@ -1,7 +1,9 @@
 import { _decorator, AudioSource, Component, Node ,resources,AudioClip,find} from 'cc';
-const { ccclass, property } = _decorator;
+const { ccclass, property ,executionOrder} = _decorator;
+
 
 @ccclass('AudioMgr')
+@executionOrder(-1)
 export class AudioMgr extends Component {
     audioSource: AudioSource|null=null;
 
@@ -36,7 +38,7 @@ export class AudioMgr extends Component {
 
        this.audioSource=this.node.getComponent(AudioSource);;
        this.audioSource.loop=true;
-
+        console.log("audioMgr onload");
       // this.playMusicSync("10-next-round");
 
     }
