@@ -67,7 +67,15 @@ export class AudioMgr extends Component {
 
         this.schedule(()=>{
             this.playEffectSync("bel");
-        },1,5,1);
+            this.playEffectSync("chel");
+            //this.setEffectVolume(0.5);
+        },1,1,1);
+
+        this.scheduleOnce(()=>{
+           // this.setEffectVolume(0.5)
+
+           this.playMusicSync("10-next-round")
+        },1);
     }
 
     playEffectSync(name:string){
@@ -109,7 +117,6 @@ export class AudioMgr extends Component {
     pauseMusic(){
         this.audioSource.pause();
     }
-
     
     resumeMusic(){
         this.audioSource.play();
@@ -120,6 +127,13 @@ export class AudioMgr extends Component {
         this.audioSource.volume=val;
     }
 
+    setEffectVolume(val:number):void {
+
+        let data:AudioSource[]=this.getComponents(AudioSource).slice(1);
+        for(let item of data){
+            item.volume=val;
+        }
+    }
 
 
     playMusic(filePath:string){
